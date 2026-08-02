@@ -1,0 +1,18 @@
+{
+  "id": "loskid-md",
+  "displayName": "♠ LØ$KÎD ♠",
+  "description": "WhatsApp bot with autotyping/autorecording, TikTok/Pinterest/FB downloads, group tools (Baileys)",
+  "settingsFile": "settings.js",
+  "packageFile": "package.json",
+  "bannerPlaceholders": ["prefix", "botName", "dev"],
+  "fields": [
+    { "key": "botName",     "settingsKey": "botName",     "label": "Bot Name",       "type": "text", "required": true },
+    { "key": "botOwner",    "settingsKey": "botOwner",    "label": "Owner/Dev Name", "type": "text", "required": true },
+    { "key": "ownerNumber", "settingsKey": "ownerNumber", "label": "Owner Number (with country code, no +)", "type": "text", "required": true },
+    { "key": "prefix",      "settingsKey": "prefix",      "label": "Command Prefix", "type": "text", "required": true, "default": "." },
+    { "key": "author",      "settingsKey": "author",      "label": "Credit Line (e.g. © YourName)", "type": "text", "required": false }
+  ],
+  "aiFields": [
+    { "key": "menuTheme", "label": "Describe the menu banner style/vibe you want (e.g. 'neon cyberpunk', 'clean minimal', 'gold luxury')", "type": "textarea", "required": false }
+  ]
+}
