@@ -3,6 +3,7 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const { db } = require('../db');
 const { protect } = require('../middleware/auth');
+const { sendPushToUser } = require('../utils/webpush');
 
 // GET /api/notifications — get user's notifications
 router.get('/', protect, async (req, res) => {
@@ -54,6 +55,7 @@ router.post('/', protect, async (req, res) => {
       sql: 'INSERT INTO notifications (id, user_id, title, body, type) VALUES (?, ?, ?, ?, ?)',
       args: [id, userId, title, body, type || 'info']
     });
+    sendPushToUser(userId, { title, body, url: '/notifications', data: { type: type || 'info' } }).catch(() => {});
     res.status(201).json({ message: 'Notification sent', id });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
@@ -80,6 +82,7 @@ const createNotification = async (userId, title, body, type = 'info', category =
       sql: 'INSERT INTO notifications (id, user_id, title, body, type) VALUES (?, ?, ?, ?, ?)',
       args: [uuidv4(), userId, title, body, type]
     });
+    sendPushToUser(userId, { title, body, url: '/notifications', data: { type } }).catch(() => {});
   } catch (e) { /* non-fatal */ }
 };
 

@@ -27,9 +27,19 @@ const marketplaceRoutes = require('./routes/marketplace');
 const analyticsRoutes = require('./routes/analytics');
 const settingsRoutes = require('./routes/settings');
 const botgenRoutes = require('./routes/botgen');
+const pushRoutes = require('./routes/push');
 
 const app = express();
 const PORT = process.env.PORT || 3004;
+
+// Surface crashes in the managed preview logs instead of dying silently.
+process.on('unhandledRejection', (reason) => {
+  console.error('[server] unhandledRejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[server] uncaughtException:', err.stack || err);
+  process.exit(1);
+});
 
 // Render sits behind a reverse proxy — trust the first hop so
 // express-rate-limit reads the real client IP from X-Forwarded-For.
@@ -97,6 +107,7 @@ app.use('/api/marketplace',   marketplaceRoutes);
 app.use('/api/botgen',        botgenRoutes);
 app.use('/api/analytics',     analyticsRoutes);
 app.use('/api/settings',      settingsRoutes);
+app.use('/api/push',         pushRoutes);
 
 // Public news endpoint (anyone logged-in can read)
 const { db } = require('./db');
@@ -202,11 +213,29 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong' });
 });
 
+// Start listening IMMEDIATELY so the platform's readiness probe succeeds even
+// while Postgres is still warming up. Previously the server only listened after
+// initDB() finished, so a slow cold-start DB made the preview look like it
+// "failed to start" and got killed before the HTTP port was ever open.
+const server = app.listen(PORT, () => console.log(`ScottyHub running on port ${PORT}`));
+
+// If another instance already owns the port, fail loudly and exit so the
+// platform restarts cleanly instead of leaving a zombie process behind.
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[server] PORT ${PORT} already in use by another instance. ` +
+      'Stopping this duplicate so the running instance can serve the preview.');
+  } else {
+    console.error('[server] listen error:', err);
+  }
+  process.exit(1);
+});
+
 initDB()
-  .then(() => {
-    app.listen(PORT, () => console.log(`ScottyHub running on port ${PORT}`));
-  })
+  .then(() => console.log('[db] init complete — tables ready'))
   .catch((err) => {
-    console.error('DB init failed:', err.message);
-    process.exit(1);
+    // Keep serving static assets; DB-backed routes will error until the DB
+    // is reachable again. Don't exit — a dead DB shouldn't take the whole
+    // preview down.
+    console.error('[db] init failed:', err.message);
   });

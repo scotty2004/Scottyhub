@@ -162,6 +162,125 @@ footer{border-top:1px solid rgba(0,217,255,.05);padding:20px 24px;text-align:cen
 .switch .slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:2.5px;background:#8899aa;transition:.25s;border-radius:50%}
 .switch input:checked + .slider{background:rgba(0,217,255,.25);border-color:rgba(0,217,255,.5)}
 .switch input:checked + .slider:before{transform:translateX(18px);background:#00D9FF}
+
+/* ════════════════════════════════════════════
+   THEME SYSTEM — light / dark (professional)
+   ════════════════════════════════════════════ */
+:root,[data-theme="dark"]{
+  --sh-bg:#0B0F19; --sh-bg2:#0D1322; --sh-header:#0f1728;
+  --sh-line:rgba(0,217,255,.12); --sh-text:#F5F8FF; --sh-muted:#6688aa;
+  --sh-input:rgba(0,217,255,.05);
+  --sh-ghost:rgba(255,255,255,.04); --sh-ghost-brd:rgba(255,255,255,.08);
+  --sh-hover:rgba(0,217,255,.06);
+  --sh-nav-bg:rgba(6,11,20,.95);
+  --sh-chat-wall:#0e1526;
+  --sh-bubble-in:rgba(0,217,255,.07); --sh-bubble-in-brd:rgba(0,217,255,.14);
+  --sh-bubble-out:linear-gradient(135deg,#00D9FF,#0066FF);
+  --sh-bubble-out-text:#04121c;
+  --sh-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+[data-theme="light"]{
+  --sh-bg:#eef2f8; --sh-bg2:#ffffff; --sh-header:#f2f6fb;
+  --sh-line:rgba(15,23,42,.1); --sh-text:#0f1b2d; --sh-muted:#5b6b80;
+  --sh-input:#ffffff;
+  --sh-ghost:rgba(15,23,42,.05); --sh-ghost-brd:rgba(15,23,42,.12);
+  --sh-hover:rgba(0,102,255,.07);
+  --sh-nav-bg:rgba(255,255,255,.94);
+  --sh-chat-wall:#dfe8f4;
+  --sh-bubble-in:#ffffff; --sh-bubble-in-brd:rgba(15,23,42,.08);
+  --sh-bubble-out:linear-gradient(135deg,#00b3ff,#0066FF);
+  --sh-bubble-out-text:#ffffff;
+  --sh-shadow:0 2px 6px rgba(15,23,42,.14);
+}
+.theme-toggle{
+  width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  background:var(--sh-ghost);border:1px solid var(--sh-ghost-brd);color:var(--sh-text);transition:all .25s;flex-shrink:0
+}
+.theme-toggle:hover{transform:translateY(-1px);border-color:rgba(0,217,255,.4);box-shadow:0 0 14px rgba(0,217,255,.15)}
+/* Light chrome */
+html[data-theme="light"] body{background:var(--sh-bg);color:var(--sh-text)}
+html[data-theme="light"] #app-shell{background:var(--sh-bg)!important}
+html[data-theme="light"] #topnav{background:var(--sh-nav-bg);border-bottom-color:var(--sh-line)}
+html[data-theme="light"] #topnav .hb{background:#0f1b2d!important}
+html[data-theme="light"] #nav-name{color:var(--sh-text)}
+html[data-theme="light"] #notif-btn{background:rgba(0,102,255,.08)!important;border-color:rgba(0,102,255,.22)!important;color:#0f1b2d!important}
+html[data-theme="light"] #sidebar{background:#ffffff;border-right-color:var(--sh-line)}
+html[data-theme="light"] #sidebar .sidebar-link{color:#42536b}
+html[data-theme="light"] #sidebar .sidebar-link:hover{color:#0f1b2d;background:rgba(0,102,255,.06)}
+html[data-theme="light"] #sidebar .sidebar-link.active{background:linear-gradient(135deg,rgba(0,217,255,.16),rgba(0,102,255,.08));border-left-color:#00b3ff;color:#0066FF}
+html[data-theme="light"] #bottom-nav{background:var(--sh-nav-bg);border-top-color:var(--sh-line)}
+html[data-theme="light"] .bnav-item{color:#5b6b80}
+html[data-theme="light"] .bnav-item.active{color:#0066FF}
+html[data-theme="light"] .input{background:var(--sh-input);border-color:var(--sh-line);color:var(--sh-text)}
+html[data-theme="light"] .input::placeholder{color:#93a3b8}
+html[data-theme="light"] .btn-ghost{background:var(--sh-ghost);color:var(--sh-text);border-color:var(--sh-ghost-brd)}
+html[data-theme="light"] .btn-ghost:hover{background:rgba(15,23,42,.09)}
+html[data-theme="light"] .toast{background:#ffffff;color:var(--sh-text);border:1px solid var(--sh-line)}
+html[data-theme="light"] #notif-panel{background:#ffffff;color:var(--sh-text)}
+html[data-theme="light"] #notif-panel .notif-title{color:#0f1b2d}
+html[data-theme="light"] #notif-panel .notif-body{color:#42536b}
+html[data-theme="light"] #auth-screen{background:linear-gradient(160deg,#f2f6fc,#e6edf8)!important}
+html[data-theme="light"] #splash{background:var(--sh-bg)!important}
+html[data-theme="light"] footer p,html[data-theme="light"] footer span{color:#7b8ba1!important}
+html[data-theme="light"] .spinner{border-color:rgba(15,23,42,.15);border-top-color:#0f1b2d}
+html[data-theme="light"] .orb{opacity:.5}
+
+/* ════════════════════════════════════════════
+   CHAT — WhatsApp-style
+   ════════════════════════════════════════════ */
+.chat-app{display:flex;height:calc(100dvh - 98px);min-height:440px;border-radius:16px;overflow:hidden;background:var(--sh-bg2);border:1px solid var(--sh-line);position:relative}
+.chat-list{width:330px;flex-shrink:0;background:var(--sh-bg2);border-right:1px solid var(--sh-line);display:flex;flex-direction:column;min-width:0}
+.chat-list-header{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--sh-line)}
+.chat-list-search{padding:8px 12px;border-bottom:1px solid var(--sh-line)}
+.chat-search{width:100%;background:var(--sh-input);border:1px solid var(--sh-line);color:var(--sh-text);font-family:'Exo 2',sans-serif;font-size:13px;outline:none;padding:9px 14px;border-radius:20px;transition:border-color .2s}
+.chat-search:focus{border-color:#00D9FF}
+.chat-search::placeholder{color:var(--sh-muted)}
+.chat-items{flex:1;overflow-y:auto;padding:6px 0}
+.chat-item{display:flex;gap:12px;padding:11px 14px;cursor:pointer;align-items:center;transition:background .15s}
+.chat-item:hover{background:var(--sh-hover)}
+.chat-item.active{background:var(--sh-hover)}
+.wa-avatar{
+  width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:15px;color:#fff;background:var(--sh-avatar,linear-gradient(135deg,#00D9FF,#0066FF));position:relative;overflow:hidden
+}
+.chat-item .ci-info{flex:1;min-width:0}
+.chat-item .ci-name{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--sh-text)}
+.chat-item .ci-time{margin-left:auto;font-size:10.5px;color:var(--sh-muted);font-weight:600;flex-shrink:0}
+.chat-item .ci-preview{font-size:12px;color:var(--sh-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.chat-item .ci-unread{background:#00D9FF;color:#04121c;border-radius:50%;min-width:19px;height:19px;padding:0 5px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-window{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;background:var(--sh-chat-wall)}
+.chat-wall{position:absolute;inset:0;background-image:radial-gradient(rgba(0,217,255,.06) 1px,transparent 1px),radial-gradient(rgba(0,102,255,.05) 1px,transparent 1px);background-size:22px 22px;background-position:0 0,11px 11px}
+.chat-header{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--sh-header);border-bottom:1px solid var(--sh-line);z-index:2}
+.chat-header .wa-avatar{width:38px;height:38px;font-size:13px}
+.chat-body{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:4px;position:relative;z-index:1}
+.chat-body::-webkit-scrollbar{width:4px}
+.msg-row{display:flex;margin:1px 0}
+.msg-row.out{justify-content:flex-end}
+.bubble{
+  max-width:min(78%,560px);padding:8px 11px;border-radius:12px;font-size:13.5px;line-height:1.5;
+  box-shadow:var(--sh-shadow);overflow-wrap:anywhere;word-break:break-word
+}
+.bubble .msg-meta{display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:3px;font-size:10px;opacity:.8;font-family:'Share Tech Mono',monospace}
+.msg-row.in .bubble{background:var(--sh-bubble-in);border:1px solid var(--sh-bubble-in-brd);color:var(--sh-text);border-top-left-radius:3px}
+.msg-row.out .bubble{background:var(--sh-bubble-out);color:var(--sh-bubble-out-text);font-weight:600;border-top-right-radius:3px}
+.chat-input-bar{display:flex;gap:8px;padding:10px 12px;background:var(--sh-header);border-top:1px solid var(--sh-line);z-index:2}
+.chat-input-bar input{flex:1;min-width:0;background:var(--sh-input);border:1px solid var(--sh-line);color:var(--sh-text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;padding:11px 16px;border-radius:22px;transition:border-color .2s}
+.chat-input-bar input:focus{border-color:#00D9FF}
+.chat-input-bar input::placeholder{color:var(--sh-muted)}
+.chat-back{display:none;width:34px;height:34px;border-radius:50%;background:var(--sh-ghost);border:1px solid var(--sh-ghost-brd);color:var(--sh-text);font-size:17px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.chat-back:hover{border-color:rgba(0,217,255,.4)}
+/* AI chat card */
+.ai-chat{position:relative;display:flex;flex-direction:column;overflow:hidden;border-radius:16px;border:1px solid var(--sh-line);height:min(620px,calc(100dvh - 240px));min-height:400px;background:var(--sh-chat-wall)}
+/* Mobile: full-screen chat like WhatsApp */
+@media(max-width:1023px){
+  .chat-app{height:calc(100dvh - 122px);min-height:420px;border-radius:0;border-left:none;border-right:none}
+  .chat-list{width:100%}
+  .chat-window{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:300}
+  .chat-app.show-chat .chat-list{display:none}
+  .chat-app.show-chat .chat-window{display:flex}
+  .chat-back{display:flex}
+  .ai-chat{height:min(560px,calc(100dvh - 250px));border-radius:12px}
+}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3180836775832725"
      crossorigin="anonymous"></script>
@@ -367,6 +486,7 @@ footer{border-top:1px solid rgba(0,217,255,.05);padding:20px 24px;text-align:cen
     </button>
     <span id="nav-label" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:#00D9FF;letter-spacing:2px;text-transform:uppercase">Dashboard</span>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme"></button>
       <button id="notif-btn" onclick="toggleNotifPanel()" title="Notifications" style="position:relative;background:rgba(0,217,255,.06);border:1px solid rgba(0,217,255,.15);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#aac;font-size:16px"><span id="notif-btn-icon"></span><span id="notif-badge" style="position:absolute;top:2px;right:2px;background:#ff4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:700">0</span></button>
       <!-- NOTIF PANEL -->
       <div id="notif-panel">
@@ -569,6 +689,7 @@ const NAV = [
   { id:'dashboard', icon:'dashboard', label:'Dashboard' },
   { id:'referral', icon:'handshake', label:'Earn Money' },
   { id:'community', icon:'chat', label:'Community' },
+  { id:'messages', icon:'chat', label:'Messages' },
   { id:'analytics', icon:'chart', label:'Analytics' },
   { id:'news', icon:'newspaper', label:'News & Announcements' },
   { id:'notifications', icon:'bell', label:'Notifications' },
@@ -618,6 +739,8 @@ const S = {
   crypto: { coins:[], forex:null, tab:'crypto', loading:false },
   aiMessages: [],
   aiLoading: false,
+  msgs: { convs: [], active: null, list: [], inited: false, silent: false },
+  msgPoll: null,
   botStatus: [],
   pairPhone:'', pairCode:'', pairStep:0, pairing:false,
   authMode: 'login', // login | register | otp | forgot | reset
@@ -894,6 +1017,7 @@ async function doReset(){
 async function doLogout(){
   localStorage.removeItem('sh_current'); localStorage.removeItem('sh_token');
   S.user = null; S.aiMessages = []; S.posts = []; S.feedTab = 'all'; S.viewProfile = null; S.feedTab = 'all'; S.viewProfile = null;
+  stopMsgPolling();
   hide('app-shell'); show('auth-screen'); authTab('login');
 }
 
@@ -939,6 +1063,8 @@ function showApp(){
   buildBottomNav();
   navigate('dashboard');
   handleSharedPostLink();
+  initMessages();
+  setupPush();
   } catch(e){
     console.error('showApp crash:', e);
     // Session may be corrupted — clear and show login
@@ -952,7 +1078,7 @@ function buildSidebarNav(){
   const container = _el('nav-items');
   const categories = [
     { label: 'ECOSYSTEM', items: ['dashboard','marketplace','blog','client','boost'] },
-    { label: 'COMMUNITY', items: ['community','bots','payment'] },
+    { label: 'COMMUNITY', items: ['community','messages','bots','payment'] },
     { label: 'UPDATES', items: ['news','notifications'] },
     { label: 'ENTERTAINMENT', items: ['movies','music','sports'] },
     { label: 'TOOLS', items: ['ai','crypto','downloader'] },
@@ -987,6 +1113,7 @@ function buildSidebarNav(){
 const BOTTOM_NAV_ITEMS = [
   { id:'dashboard', icon:'dashboard', label:'Home' },
   { id:'referral',  icon:'handshake', label:'Earn' },
+  { id:'messages',  icon:'chat',      label:'Chat' },
   { id:'ai',        icon:'brain',     label:'AI' },
   { id:'community', icon:'chat',      label:'Feed' },
 ];
@@ -1162,25 +1289,32 @@ function renderAIChatPage(){
     <p style="color:#6688aa;font-size:14px;margin-bottom:6px">Ask anything about WhatsApp bots, Baileys.js, deployment, or ScottyHub.</p>
     <p id="ai-credits-label" style="color:#445566;font-size:11px;margin-bottom:18px;font-family:'Share Tech Mono',monospace">Loading credits…</p>
     ${aiToolGrid('chat')}
-    <div class="card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:460px">
-      <div id="ai-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px">
+    <div class="ai-chat">
+      <div class="chat-wall"></div>
+      <div class="chat-header">
+        <div class="wa-avatar" style="width:36px;height:36px;font-size:13px">${ico('brain',18,'#fff')}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--sh-text)">ScottyAI</div>
+          <div style="font-size:11px;color:#00cc88">${S.aiLoading?'typing…':'online'}</div>
+        </div>
+        <button class="btn btn-ghost" onclick="clearAIChat()" style="padding:6px 12px;border-radius:16px;font-size:11px;flex-shrink:0">Clear</button>
+      </div>
+      <div class="chat-body" id="ai-messages">
         ${S.aiMessages.length===0?`
-          <div style="text-align:center;padding:40px 20px;opacity:.7">
-            <div style="margin-bottom:12px">${ico('brain',48,'#9944ff')}</div>
-            <div style="font-weight:700;font-size:15px;margin-bottom:6px">ScottyAI</div>
-            <p style="color:#6688aa;font-size:13px">Ask me anything about WhatsApp bots, Node.js, Render deployment, or making money online.</p>
+          <div style="text-align:center;padding:40px 20px;opacity:.75">
+            <div style="margin-bottom:12px">${ico('brain',44,'#00D9FF')}</div>
+            <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:var(--sh-text)">ScottyAI</div>
+            <p style="color:var(--sh-muted);font-size:13px">Ask me anything about WhatsApp bots, Node.js, Render deployment, or making money online.</p>
           </div>` :
           S.aiMessages.map(m=>`
-            <div style="display:flex;${m.role==='user'?'justify-content:flex-end':'justify-content:flex-start'}">
-              <div style="max-width:80%;padding:11px 14px;border-radius:${m.role==='user'?'12px 12px 4px 12px':'12px 12px 12px 4px'};font-size:13px;line-height:1.6;${m.role==='user'?'background:linear-gradient(135deg,#00D9FF,#0066FF);color:#0B0F19;font-weight:600':'background:rgba(0,217,255,.06);border:1px solid rgba(0,217,255,.12);color:#F5F8FF'}">
-                ${m.content}
-              </div>
+            <div class="msg-row ${m.role==='user'?'out':'in'}">
+              <div class="bubble">${m.content}<div class="msg-meta">${m.role==='user'?'You':'ScottyAI'} · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>
             </div>`).join('')}
-        ${S.aiLoading?`<div style="display:flex;justify-content:flex-start"><div style="padding:11px 14px;border-radius:12px 12px 12px 4px;background:rgba(0,217,255,.06);border:1px solid rgba(0,217,255,.12);display:flex;align-items:center;gap:8px"><span style="color:#6688aa;font-size:13px">ScottyAI is thinking</span><span class="spinner" style="border-color:rgba(0,217,255,.2);border-top-color:#00D9FF"></span></div></div>`:''}
+        ${S.aiLoading?`<div class="msg-row in"><div class="bubble" style="display:flex;align-items:center;gap:8px;color:var(--sh-muted)"><span>ScottyAI is thinking</span><span class="spinner" style="border-color:rgba(0,217,255,.2);border-top-color:#00D9FF"></span></div></div>`:''}
       </div>
-      <div style="padding:12px;border-top:1px solid rgba(0,217,255,.08);display:flex;gap:8px">
-        <input class="input" id="ai-input" placeholder="Ask ScottyAI..." style="flex:1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI();}"/>
-        <button class="btn btn-cyan" onclick="sendAI()" style="padding:11px 16px;border-radius:8px">Send</button>
+      <div class="chat-input-bar">
+        <input id="ai-input" placeholder="Ask ScottyAI..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI();}"/>
+        <button class="btn btn-cyan" onclick="sendAI()" style="padding:10px 16px;border-radius:20px;flex-shrink:0">Send</button>
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
@@ -1928,13 +2062,19 @@ news(){
 notifications(){
   return `<div class="fade-up">
     ${pageHeader(`${ico('bell',14,'#0066FF')} Notifications`,'Your <span style="color:#0066FF">Notifications</span>','Everything ScottyHub has sent your way.')}
-    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px;gap:8px">
+      <button onclick="enablePush()" class="btn btn-outline" style="padding:7px 16px;border-radius:8px;font-size:12px">${ico('bell',13,'currentColor')} Enable push</button>
       <button onclick="markAllNotifsRead();navigate('notifications')" class="btn btn-ghost" style="padding:7px 16px;border-radius:8px;font-size:12px">${ico('check',13,'currentColor')} Mark all read</button>
     </div>
     <div class="card" style="padding:6px">
       <div id="notif-page-list"></div>
     </div>
   </div>`;
+},
+
+// ── MESSAGES PAGE (WhatsApp-style DMs) ──
+messages(){
+  return renderMessagesPage();
 },
 
 // ── PAYMENT PAGE ──
@@ -2470,6 +2610,7 @@ const pageInits = {
   sports: initSports,
   crypto: initCrypto,
   community: initCommunity,
+  messages: () => initMessages(),
   bots: initBots,
   ai: () => { if((S.aiTool||'chat')==='chat') scrollAI(); loadAICredits(); },
   blog: () => { if(!S.blog.loaded) loadBlogFeed(); },
@@ -5725,6 +5866,292 @@ window.addEventListener('unhandledrejection', (e)=>{
   toast('PROMISE ERROR: ' + msg, 'error', 10000);
   console.error('[DEBUG] unhandled rejection:', e.reason);
 });
+
+// ════════════════════════════════════════════
+//  THEME TOGGLE (light / dark — professional)
+// ════════════════════════════════════════════
+const THEME_SUN = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+const THEME_MOON = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  try{ localStorage.setItem('scottyhub-theme', t); }catch(_){}
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', t==='light' ? '#eef2f8' : '#0B0F19');
+  const btn = _el('theme-toggle');
+  if(btn) btn.innerHTML = t==='light' ? THEME_MOON : THEME_SUN;
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(cur==='dark' ? 'light' : 'dark');
+}
+(function(){
+  let saved=null; try{ saved = localStorage.getItem('scottyhub-theme'); }catch(_){}
+  const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  applyTheme(saved || (prefersLight ? 'light' : 'dark'));
+})();
+
+// ════════════════════════════════════════════
+//  WEB PUSH — OS-level notifications (works even when site is closed)
+// ════════════════════════════════════════════
+async function setupPush(){
+  try{
+    if(!('serviceWorker' in navigator)) return;
+    await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    if(Notification.permission === 'granted') subscribePush();
+    if(!window._pushRelay){
+      window._pushRelay = true;
+      navigator.serviceWorker.addEventListener('message', (e)=>{
+        const d = e.data||{};
+        if(d.type==='scottyhub-push' && typeof addNotif==='function'){
+          addNotif(d.title||'ScottyHub', d.body||'', 'info');
+        }
+      });
+    }
+  }catch(e){ console.error('[push] SW register failed', e); }
+}
+function urlBase64ToUint8Array(b64){
+  const pad = b64.replace(/=+$/,'');
+  const bin = atob(pad);
+  const arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+async function subscribePush(){
+  try{
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if(Notification.permission !== 'granted') return;
+    let keyRes;
+    try{ keyRes = await fetch(API+'/push/vapid-key').then(r=>r.json()); }catch(_){ return; }
+    if(!keyRes || !keyRes.key) return;
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if(!sub){
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(keyRes.key)
+      });
+    }
+    const j = sub.toJSON();
+    await fetch(API+'/push/subscribe', {
+      method:'POST', headers: authH(), body: JSON.stringify({ subscription: { endpoint: sub.endpoint, keys: j.keys } })
+    });
+  }catch(e){ console.error('[push] subscribe failed', e); }
+}
+async function enablePush(){
+  if(!('Notification' in window)){ toast('This browser does not support notifications','error'); return; }
+  if(!token()){ toast('Sign in first','error'); return; }
+  const perm = await Notification.requestPermission();
+  if(perm === 'granted'){
+    await setupPush();
+    await subscribePush();
+    toast('Push notifications enabled 🔔','success');
+  } else {
+    toast('Permission denied — enable notifications in your browser settings','error');
+  }
+}
+function clearAIChat(){ S.aiMessages = []; navigate('ai'); }
+
+// ════════════════════════════════════════════
+//  MESSAGES — WhatsApp-style direct chat
+// ════════════════════════════════════════════
+function renderMessagesPage(){
+  const convs = S.msgs.convs||[];
+  const active = S.msgs.active;
+  return `<div class="fade-up" style="height:100%">
+    <div class="chat-app${active?' show-chat':''}" id="chat-app">
+      <div class="chat-list">
+        <div class="chat-list-header">
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;color:var(--sh-text)">${ico('chat',16,'#00D9FF')} Chats</div>
+          <button class="btn btn-cyan" onclick="openNewChat()" style="margin-left:auto;padding:7px 14px;border-radius:20px;font-size:11px">+ New</button>
+        </div>
+        <div class="chat-list-search">
+          <input class="chat-search" id="chat-search" placeholder="Search chats..." oninput="filterChats(this.value)">
+        </div>
+        <div class="chat-items" id="chat-items">
+          ${convs.length ? convs.map(chatItemHTML).join('') : `<div style="text-align:center;padding:44px 16px;color:var(--sh-muted)">
+            <div style="font-size:40px;margin-bottom:10px;opacity:.5">${ico('chat',40,'currentColor')}</div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">No chats yet</div>
+            <div style="font-size:12px">Tap New to start a conversation</div>
+          </div>`}
+        </div>
+      </div>
+      <div class="chat-window">
+        ${active ? renderChatWindow() : `<div class="chat-wall"></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sh-muted);z-index:1;text-align:center;padding:24px">
+          <div style="font-size:52px;margin-bottom:14px;opacity:.4">${ico('chat',52,'currentColor')}</div>
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--sh-text)">ScottyHub Messages</div>
+          <div style="font-size:12px;max-width:260px">Pick a chat or start a new one. Private messages, delivered even when you're not on the site.</div>
+        </div>`}
+      </div>
+    </div>
+  </div>`;
+}
+function chatItemHTML(c){
+  const u = c.other_username || 'User';
+  const initial = getInitial(u);
+  const time = c.last_at ? timeAgo(c.last_at) : '';
+  const preview = (c.last_message||'Say hi 👋');
+  return `<div class="chat-item${S.msgs.active===c.id?' active':''}" onclick="openConv('${c.id}')">
+    <div class="wa-avatar"><span>${initial}</span>${c.other_avatar?`<img src="${escHtml(c.other_avatar)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">`:''}</div>
+    <div class="ci-info">
+      <div class="ci-name"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(u)}</span><span class="ci-time">${time}</span></div>
+      <div class="ci-preview">${c.unread>0?`<span style="color:#00D9FF;font-weight:700">${escHtml(preview).slice(0,60)}</span>`:escHtml(preview).slice(0,60)}</div>
+    </div>
+    ${c.unread>0?`<span class="ci-unread">${c.unread>9?'9+':c.unread}</span>`:''}
+  </div>`;
+}
+function renderChatWindow(){
+  const c = (S.msgs.convs||[]).find(x=>x.id===S.msgs.active);
+  if(!c) return '';
+  const u = c.other_username || 'User';
+  const initial = getInitial(u);
+  const msgs = S.msgs.list||[];
+  const lastSeen = c.other_last_seen ? 'Last seen '+timeAgo(c.other_last_seen) : 'online';
+  return `<div class="chat-wall"></div>
+    <div class="chat-header">
+      <button class="chat-back" onclick="closeChat()" title="Back">←</button>
+      <div class="wa-avatar" style="width:38px;height:38px;font-size:13px"><span>${initial}</span>${c.other_avatar?`<img src="${escHtml(c.other_avatar)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">`:''}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:14px;color:var(--sh-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(u)}</div>
+        <div style="font-size:11px;color:var(--sh-muted)">${lastSeen}</div>
+      </div>
+      <button class="btn btn-ghost" onclick="openNewChat()" title="New chat" style="width:34px;height:34px;padding:0;border-radius:50%;flex-shrink:0">+</button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      ${msgs.length ? msgs.map(msgRowHTML).join('') : '<div style="text-align:center;color:var(--sh-muted);padding:30px;font-size:12px">No messages yet — say hi 👋</div>'}
+    </div>
+    <div class="chat-input-bar">
+      <input id="msg-input" placeholder="Message" onkeydown="if(event.key==='Enter'){event.preventDefault();sendMsg();}">
+      <button class="btn btn-cyan" onclick="sendMsg()" style="padding:10px 16px;border-radius:20px;flex-shrink:0">Send</button>
+    </div>`;
+}
+function parseChatDate(ts){
+  if(!ts) return new Date();
+  const iso = typeof ts==='string' && ts.includes(' ') && !ts.includes('T') ? ts.replace(' ','T')+'Z' : ts;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? new Date() : d;
+}
+function chatTime(ts){ return parseChatDate(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+function msgRowHTML(m){
+  const out = m.sender_id === (S.user && S.user.uid);
+  return `<div class="msg-row ${out?'out':'in'}"><div class="bubble">${escHtml(m.content)}<div class="msg-meta">${chatTime(m.created_at)}${out?' '+ico('check',12,'currentColor'):''}</div></div></div>`;
+}
+async function openConv(id){
+  S.msgs.active = id; S.msgs.list = [];
+  const c = (S.msgs.convs||[]).find(x=>x.id===id);
+  if(c){ c.unread = 0; }
+  navigate('messages');
+  const body = _el('chat-body');
+  if(body) body.innerHTML = '<div style="text-align:center;padding:24px;color:var(--sh-muted)"><span class="spinner" style="border-color:rgba(0,217,255,.2);border-top-color:#00D9FF"></span></div>';
+  try{
+    const d = await apiFetch('/api/messages/'+id+'?since=1970-01-01');
+    S.msgs.list = d.messages || [];
+    const b = _el('chat-body');
+    if(b){ b.innerHTML = S.msgs.list.length ? S.msgs.list.map(msgRowHTML).join('') : '<div style="text-align:center;color:var(--sh-muted);padding:30px;font-size:12px">No messages yet — say hi 👋</div>'; b.scrollTop = b.scrollHeight; }
+    apiFetch('/api/messages/last-seen','PUT').catch(()=>{});
+  }catch(e){ toast('Could not load messages','error'); }
+}
+function closeChat(){ S.msgs.active = null; navigate('messages'); }
+async function sendMsg(){
+  const inp = _el('msg-input'); if(!inp) return;
+  const content = inp.value.trim(); if(!content || !S.msgs.active) return;
+  inp.value = '';
+  try{
+    const d = await apiFetch('/api/messages/'+S.msgs.active,'POST',{ content });
+    if(d && d.message){
+      S.msgs.list = (S.msgs.list||[]).concat([d.message]);
+      const b = _el('chat-body');
+      if(b){ b.insertAdjacentHTML('beforeend', msgRowHTML(d.message)); b.scrollTop = b.scrollHeight; }
+      const c = (S.msgs.convs||[]).find(x=>x.id===S.msgs.active);
+      if(c){ c.last_message = d.message.content.slice(0,80); c.last_at = d.message.created_at; }
+      const li = _el('chat-items');
+      if(li) li.innerHTML = S.msgs.convs.map(chatItemHTML).join('');
+    }
+  }catch(e){ toast('Message failed to send','error'); }
+}
+function filterChats(q){
+  const li = _el('chat-items'); if(!li) return;
+  const ql = (q||'').toLowerCase();
+  li.innerHTML = (S.msgs.convs||[]).filter(c=>!ql || (c.other_username||'').toLowerCase().includes(ql)).map(chatItemHTML).join('');
+}
+function openNewChat(){
+  openModal(`<div style="width:100%;max-width:380px">
+    <h3 style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;margin-bottom:6px;color:var(--sh-text)">New Chat</h3>
+    <p style="color:var(--sh-muted);font-size:12px;margin-bottom:14px">Search a username or email to start chatting</p>
+    <input class="input" id="nc-search" placeholder="Search users..." style="border-radius:10px" oninput="searchChatUsers(this.value)">
+    <div id="nc-results" style="margin-top:12px;max-height:280px;overflow-y:auto"></div>
+  </div>`);
+  setTimeout(()=>{ const el = _el('nc-search'); if(el) el.focus(); }, 80);
+}
+async function searchChatUsers(q){
+  const box = _el('nc-results'); if(!box) return;
+  if(!q || q.length<2){ box.innerHTML = ''; return; }
+  try{
+    const d = await apiFetch('/api/messages/users?q='+encodeURIComponent(q));
+    box.innerHTML = d.users.length ? d.users.map(u=>`
+      <div class="chat-item" onclick="startChat('${u.id}')">
+        <div class="wa-avatar"><span>${getInitial(u.username)}</span></div>
+        <div class="ci-info"><div class="ci-name">${escHtml(u.username)}</div><div class="ci-preview">Start chatting</div></div>
+      </div>`).join('') : '<div style="color:var(--sh-muted);font-size:12px;text-align:center;padding:16px">No users found</div>';
+  }catch(e){ box.innerHTML = '<div style="color:var(--sh-muted);font-size:12px;text-align:center;padding:16px">Search failed</div>'; }
+}
+async function startChat(otherId){
+  closeModal();
+  try{
+    const d = await apiFetch('/api/messages/conversations','POST',{ other_id: otherId });
+    const conv = d.conversation;
+    if(!(S.msgs.convs||[]).find(x=>x.id===conv.id)){
+      S.msgs.convs.unshift({ id: conv.id, last_message:'', last_at:null, unread:0, other_id: otherId, other_username: (d.other && d.other.username)||'User', other_avatar:(d.other && d.other.avatar)||'', other_last_seen:null });
+    }
+    openConv(conv.id);
+  }catch(e){ toast((e.message||'Could not start chat'),'error'); }
+}
+function initMessages(){
+  if(!token() || S.msgs.inited) return;
+  S.msgs.inited = true;
+  pollMessages();
+  S.msgPoll = setInterval(pollMessages, 5000);
+}
+function stopMsgPolling(){
+  if(S.msgPoll){ clearInterval(S.msgPoll); S.msgPoll = null; }
+  S.msgs.inited = false;
+}
+async function pollMessages(){
+  if(!token()) return;
+  try{
+    const d = await apiFetch('/api/messages/conversations');
+    const fresh = (d && d.conversations) || [];
+    const prev = S.msgs.convs || [];
+    S.msgs.convs = fresh;
+    const onChat = S.page === 'messages';
+    if(onChat){
+      const li = _el('chat-items');
+      if(li && !S.msgs.active) li.innerHTML = fresh.map(chatItemHTML).join('');
+      if(S.msgs.active){
+        const since = (S.msgs.list && S.msgs.list.length) ? S.msgs.list[S.msgs.list.length-1].created_at : '1970-01-01';
+        const m = await apiFetch('/api/messages/'+S.msgs.active+'?since='+encodeURIComponent(since));
+        if(m.messages && m.messages.length){
+          S.msgs.list = (S.msgs.list||[]).concat(m.messages);
+          const b = _el('chat-body');
+          if(b){ b.insertAdjacentHTML('beforeend', m.messages.map(msgRowHTML).join('')); b.scrollTop = b.scrollHeight; }
+          const c = fresh.find(x=>x.id===S.msgs.active);
+          if(c){ c.unread = 0; const li2 = _el('chat-items'); if(li2) li2.innerHTML = fresh.map(chatItemHTML).join(''); }
+        }
+      }
+    } else if(!S.msgs.silent){
+      prev.forEach(p=>{
+        const n = fresh.find(x=>x.id===p.id);
+        if(n && n.unread > (p.unread||0) && n.unread>0){
+          const now = Date.now();
+          if(now - (S.msgs.toastAt && S.msgs.toastAt[n.id] || 0) < 10000) return;
+          S.msgs.toastAt = S.msgs.toastAt || {}; S.msgs.toastAt[n.id] = now;
+          addNotif((n.other_username||'New message'), (n.last_message||'').slice(0,80), 'info');
+        }
+      });
+    }
+  }catch(e){ /* transient — poll again next tick */ }
+}
+
 
 // ════════════════════════════════════════════
 //  IN-APP NOTIFICATIONS

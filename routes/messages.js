@@ -3,6 +3,8 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const { db } = require('../db');
 const { protect } = require('../middleware/auth');
+const { createNotification } = require('./notifications');
+const { sendPushToUser } = require('../utils/webpush');
 
 // All routes require auth
 router.use(protect);
@@ -181,6 +183,25 @@ router.post('/:convId', async (req, res) => {
             FROM messages m JOIN users u ON m.sender_id=u.id WHERE m.id=?`,
       args: [id]
     });
+
+    // Notify the other person: in-app notification + OS-level push (works even
+    // when they're not on the site, thanks to the service worker).
+    const otherUserId = isUserA ? c.user_b : c.user_a;
+    try {
+      const meRow = await db.execute({ sql: 'SELECT username FROM users WHERE id = ?', args: [me] });
+      const fromName = (meRow.rows[0] && meRow.rows[0].username) || 'Someone';
+      const snippet = content.trim().substring(0, 120);
+      await createNotification(otherUserId, `New message from ${fromName}`, snippet, 'info', 'social');
+      await sendPushToUser(otherUserId, {
+        title: fromName,
+        body: snippet,
+        url: '/messages',
+        tag: 'msg-' + convId,
+        data: { convId }
+      });
+    } catch (e) {
+      console.error('message notification error:', e.message);
+    }
 
     res.status(201).json({ message: msg.rows[0] });
   } catch (err) {

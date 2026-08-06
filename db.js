@@ -444,9 +444,52 @@ async function initDB() {
     );
   `);
 
-  // Courage App (DM messaging) was fully removed — drop any leftover tables from older deploys
-  await pool.query('DROP TABLE IF EXISTS messages').catch(() => {});
-  await pool.query('DROP TABLE IF EXISTS conversations').catch(() => {});
+  // DMs — WhatsApp-style direct messaging (chat UI + web push notifications).
+  // user_a < user_b is enforced by the route for the UNIQUE constraint.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS conversations (
+      id TEXT PRIMARY KEY,
+      user_a TEXT NOT NULL,
+      user_b TEXT NOT NULL,
+      last_message TEXT DEFAULT '',
+      last_at TEXT DEFAULT (NOW()::text),
+      unread_a INTEGER DEFAULT 0,
+      unread_b INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (NOW()::text),
+      FOREIGN KEY (user_a) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_b) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE (user_a, user_b)
+    );
+    CREATE TABLE IF NOT EXISTS messages (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL,
+      sender_id TEXT NOT NULL,
+      content TEXT NOT NULL,
+      type TEXT DEFAULT 'text',
+      is_read INTEGER DEFAULT 0,
+      deleted INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (NOW()::text),
+      FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+      FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `).catch(() => {});
+
+  // Web Push — per-device push subscriptions + persisted VAPID key storage
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      endpoint TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      keys TEXT DEFAULT '{}',
+      user_agent TEXT DEFAULT '',
+      created_at TEXT DEFAULT (NOW()::text),
+      updated_at TEXT DEFAULT (NOW()::text),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT DEFAULT ''
+    );
+  `).catch(() => {});
 
   // Migrate: add columns that may be missing on an existing database
   await pool.query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS pinned INTEGER DEFAULT 0`);
