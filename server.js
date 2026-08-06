@@ -28,8 +28,21 @@ const analyticsRoutes = require('./routes/analytics');
 const settingsRoutes = require('./routes/settings');
 const botgenRoutes = require('./routes/botgen');
 const pushRoutes = require('./routes/push');
+const { router: roomchatRoutes } = require('./routes/roomchat');
+const messagesRoutes = require('./routes/messages');
+
+const http = require('http');
+const { Server: SocketIOServer } = require('socket.io');
+const { attachSocket } = require('./socket/chat');
 
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: { origin: process.env.FRONTEND_URL || '*' }
+});
+app.set('io', io);
+attachSocket(io);
+
 const PORT = process.env.PORT || 3004;
 
 // Surface crashes in the managed preview logs instead of dying silently.
@@ -108,6 +121,8 @@ app.use('/api/botgen',        botgenRoutes);
 app.use('/api/analytics',     analyticsRoutes);
 app.use('/api/settings',      settingsRoutes);
 app.use('/api/push',         pushRoutes);
+app.use('/api/messages',      messagesRoutes);
+app.use('/api/roomchat',      roomchatRoutes);
 
 // Public news endpoint (anyone logged-in can read)
 const { db } = require('./db');
@@ -217,7 +232,7 @@ app.use((err, req, res, next) => {
 // while Postgres is still warming up. Previously the server only listened after
 // initDB() finished, so a slow cold-start DB made the preview look like it
 // "failed to start" and got killed before the HTTP port was ever open.
-const server = app.listen(PORT, () => console.log(`ScottyHub running on port ${PORT}`));
+server.listen(PORT, () => console.log(`ScottyHub running on port ${PORT} (with realtime chat)`));
 
 // If another instance already owns the port, fail loudly and exit so the
 // platform restarts cleanly instead of leaving a zombie process behind.

@@ -110,7 +110,7 @@ router.get('/:convId', async (req, res) => {
     if (!conv.rows.length) return res.status(403).json({ message: 'Forbidden' });
 
     const msgs = await db.execute({
-      sql: `SELECT m.id, m.sender_id, m.content, m.type, m.is_read, m.deleted, m.created_at,
+      sql: `SELECT m.id, m.conversation_id, m.sender_id, m.content, m.type, m.is_read, m.deleted, m.created_at,
                    u.username as sender_name, u.avatar as sender_avatar
             FROM messages m
             JOIN users u ON m.sender_id = u.id
@@ -178,7 +178,7 @@ router.post('/:convId', async (req, res) => {
     });
 
     const msg = await db.execute({
-      sql: `SELECT m.id, m.sender_id, m.content, m.type, m.is_read, m.deleted, m.created_at,
+      sql: `SELECT m.id, m.conversation_id, m.sender_id, m.content, m.type, m.is_read, m.deleted, m.created_at,
                    u.username as sender_name, u.avatar as sender_avatar
             FROM messages m JOIN users u ON m.sender_id=u.id WHERE m.id=?`,
       args: [id]
@@ -201,6 +201,14 @@ router.post('/:convId', async (req, res) => {
       });
     } catch (e) {
       console.error('message notification error:', e.message);
+    }
+
+    // Real-time delivery: push to both people's personal socket room so it
+    // lands instantly whether or not they're currently viewing this thread.
+    const io = req.app.get('io');
+    if (io) {
+      const otherId = isUserA ? c.user_b : c.user_a;
+      io.to(`user:${otherId}`).to(`user:${me}`).emit('dm:message', msg.rows[0]);
     }
 
     res.status(201).json({ message: msg.rows[0] });

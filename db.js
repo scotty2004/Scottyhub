@@ -434,19 +434,8 @@ async function initDB() {
       created_at TEXT DEFAULT (NOW()::text),
       FOREIGN KEY (uploader_id) REFERENCES users(id) ON DELETE CASCADE
     );
-    CREATE TABLE IF NOT EXISTS activity_log (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      kind TEXT NOT NULL,
-      label TEXT DEFAULT '',
-      created_at TEXT DEFAULT (NOW()::text),
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
-  `);
-
-  // DMs — WhatsApp-style direct messaging (chat UI + web push notifications).
-  // user_a < user_b is enforced by the route for the UNIQUE constraint.
-  await pool.query(`
+    -- 1-on-1 direct messages (WhatsApp-style DMs). user_a is always the
+    -- lexicographically-smaller id so (user_a,user_b) is a stable UNIQUE pair.
     CREATE TABLE IF NOT EXISTS conversations (
       id TEXT PRIMARY KEY,
       user_a TEXT NOT NULL,
@@ -456,9 +445,9 @@ async function initDB() {
       unread_a INTEGER DEFAULT 0,
       unread_b INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (NOW()::text),
+      UNIQUE(user_a, user_b),
       FOREIGN KEY (user_a) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (user_b) REFERENCES users(id) ON DELETE CASCADE,
-      UNIQUE (user_a, user_b)
+      FOREIGN KEY (user_b) REFERENCES users(id) ON DELETE CASCADE
     );
     CREATE TABLE IF NOT EXISTS messages (
       id TEXT PRIMARY KEY,
@@ -472,9 +461,35 @@ async function initDB() {
       FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
       FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
     );
-  `).catch(() => {});
+    CREATE INDEX IF NOT EXISTS idx_messages_conv ON messages(conversation_id, created_at);
 
-  // Web Push — per-device push subscriptions + persisted VAPID key storage
+    -- Shared "room" chats — one table backs the global Community chatroom
+    -- (room='community'), the live Feed chat (room='feed'), and every
+    -- group chat (room='group:<groupId>').
+    CREATE TABLE IF NOT EXISTS room_messages (
+      id TEXT PRIMARY KEY,
+      room TEXT NOT NULL,
+      sender_id TEXT NOT NULL,
+      content TEXT NOT NULL,
+      type TEXT DEFAULT 'text',
+      deleted INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (NOW()::text),
+      FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_room_messages_room ON room_messages(room, created_at);
+
+    CREATE TABLE IF NOT EXISTS activity_log (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      label TEXT DEFAULT '',
+      created_at TEXT DEFAULT (NOW()::text),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
+
+  // DMs — WhatsApp-style direct messaging (chat UI + web push notifications).
+  // user_a < user_b is enforced by the route for the UNIQUE constraint.
   await pool.query(`
     CREATE TABLE IF NOT EXISTS push_subscriptions (
       endpoint TEXT PRIMARY KEY,

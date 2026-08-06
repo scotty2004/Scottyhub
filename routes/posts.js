@@ -257,6 +257,9 @@ router.post('/:id/comment', protect, async (req, res) => {
       args: [postId]
     });
 
+    const io = req.app.get('io');
+    if (io) io.to('feed').emit('feed:comment', { postId, comments: comments.rows });
+
     res.json(comments.rows);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });

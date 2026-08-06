@@ -26,6 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -252,7 +253,7 @@ html[data-theme="light"] .orb{opacity:.5}
 .chat-wall{position:absolute;inset:0;background-image:radial-gradient(rgba(0,217,255,.06) 1px,transparent 1px),radial-gradient(rgba(0,102,255,.05) 1px,transparent 1px);background-size:22px 22px;background-position:0 0,11px 11px}
 .chat-header{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--sh-header);border-bottom:1px solid var(--sh-line);z-index:2}
 .chat-header .wa-avatar{width:38px;height:38px;font-size:13px}
-.chat-body{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:4px;position:relative;z-index:1}
+.chat-body{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:4px;position:relative;z-index:1;background-image:radial-gradient(rgba(0,217,255,.045) 1px,transparent 1px);background-size:20px 20px}
 .chat-body::-webkit-scrollbar{width:4px}
 .msg-row{display:flex;margin:1px 0}
 .msg-row.out{justify-content:flex-end}
@@ -281,6 +282,27 @@ html[data-theme="light"] .orb{opacity:.5}
   .chat-back{display:flex}
   .ai-chat{height:min(560px,calc(100dvh - 250px));border-radius:12px}
 }
+/* ── WhatsApp-style chat ── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:420px;background:rgba(10,16,28,.9);border:1px solid rgba(0,217,255,.1);border-radius:12px;overflow:hidden}
+.chat-day-sep{text-align:center;margin:12px 0 8px;font-size:10px;color:#6688aa;letter-spacing:1px}
+.chat-day-sep span{background:rgba(255,255,255,.05);padding:3px 10px;border-radius:10px}
+.chat-row{display:flex;margin:2px 0;max-width:100%}
+.chat-row.me{justify-content:flex-end}
+.chat-bubble{max-width:75%;padding:8px 11px;border-radius:12px;font-size:13.5px;line-height:1.4;position:relative;word-wrap:break-word;white-space:pre-wrap}
+.chat-row:not(.me) .chat-bubble{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-top-left-radius:3px}
+.chat-row.me .chat-bubble{background:linear-gradient(135deg,#0066FF,#00A8E8);color:#fff;border-top-right-radius:3px}
+.chat-sender{font-size:10.5px;font-weight:700;color:#00D9FF;margin-bottom:2px}
+.chat-meta{font-size:9.5px;opacity:.65;margin-top:3px;text-align:right}
+.chat-inputbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid rgba(0,217,255,.1);background:rgba(10,16,28,.95);flex-shrink:0}
+.chat-inputbar textarea{flex:1;resize:none;max-height:100px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:9px 16px;color:#F5F8FF;font-size:13.5px;font-family:inherit;line-height:1.3}
+.chat-inputbar textarea:focus{outline:none;border-color:rgba(0,217,255,.4)}
+.chat-send-btn{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#00D9FF,#0066FF);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#0B0F19;flex-shrink:0}
+.chat-typing{font-size:11px;color:#00D9FF;padding:2px 4px;height:16px;font-style:italic}
+.online-dot{width:9px;height:9px;border-radius:50%;background:#3a4a5a;border:2px solid #0B0F19;position:absolute;bottom:-1px;right:-1px}
+.online-dot.on{background:#00cc88}
+.dm-row{display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s}
+.dm-row:hover{background:rgba(0,217,255,.04)}
+.dm-row .dm-unread{background:#00D9FF;color:#0B0F19;font-size:10px;font-weight:800;border-radius:10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3180836775832725"
      crossorigin="anonymous"></script>
@@ -486,7 +508,9 @@ html[data-theme="light"] .orb{opacity:.5}
     </button>
     <span id="nav-label" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:#00D9FF;letter-spacing:2px;text-transform:uppercase">Dashboard</span>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-      <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme"></button>
+
+      <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme"></button>      <button id="dm-nav-btn" onclick="navigate('messages')" title="Messages" style="position:relative;background:rgba(0,217,255,.06);border:1px solid rgba(0,217,255,.15);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#aac"><span id="dm-nav-icon"></span><span id="dm-nav-badge" style="position:absolute;top:2px;right:2px;background:#ff4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:700">0</span></button>
+
       <button id="notif-btn" onclick="toggleNotifPanel()" title="Notifications" style="position:relative;background:rgba(0,217,255,.06);border:1px solid rgba(0,217,255,.15);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#aac;font-size:16px"><span id="notif-btn-icon"></span><span id="notif-badge" style="position:absolute;top:2px;right:2px;background:#ff4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:700">0</span></button>
       <!-- NOTIF PANEL -->
       <div id="notif-panel">
@@ -724,6 +748,9 @@ const S = {
   communityTab: 'feed',
   profileTab: 'blog',
   activeGroupId: null,
+  activeChatRoom: null,
+  activeChatTitle: null,
+  dm: { activeConvId: null, otherUser: null, conversations: [] },
   activeGroupName: '',
   groups: [],
   pollInputs: 2,
@@ -1018,6 +1045,7 @@ async function doLogout(){
   localStorage.removeItem('sh_current'); localStorage.removeItem('sh_token');
   S.user = null; S.aiMessages = []; S.posts = []; S.feedTab = 'all'; S.viewProfile = null; S.feedTab = 'all'; S.viewProfile = null;
   stopMsgPolling();
+  if(socket){ socket.disconnect(); socket = null; }
   hide('app-shell'); show('auth-screen'); authTab('login');
 }
 
@@ -1063,8 +1091,11 @@ function showApp(){
   buildBottomNav();
   navigate('dashboard');
   handleSharedPostLink();
+
   initMessages();
-  setupPush();
+  setupPush();  initSocket();
+  refreshDmNavBadge();
+
   } catch(e){
     console.error('showApp crash:', e);
     // Session may be corrupted — clear and show login
@@ -1130,10 +1161,20 @@ function buildBottomNav(){
     </button>`;
 }
 
-function navigate(page){
+function navigate(page, opts){
+  opts = opts || {};
   const isSamePage = S.page === page;
   S.page = page;
   closeSidebar();
+  // Keep the browser's history stack in sync with in-app navigation so the
+  // Back button moves between app pages instead of leaving the site.
+  if(!opts.fromPopstate){
+    if(isSamePage){
+      history.replaceState({ page: page }, '', '#'+page);
+    } else {
+      history.pushState({ page: page }, '', '#'+page);
+    }
+  }
   // AI tool subpages (aitool-writer, aitool-code, ...) belong to the 'ai' nav item
   const navId = page && page.startsWith('aitool-') ? 'ai' : page;
   // Update nav label
@@ -1172,6 +1213,15 @@ function navigate(page){
     window.scrollTo(0,0);
   }
 }
+
+// Handle the browser's physical Back/Forward buttons: route them through
+// navigate() instead of letting the browser fall through to whatever page
+// the user was on before they landed on the site.
+window.addEventListener('popstate', function(e){
+  if(!S.user) return; // not logged in yet — nothing to navigate within
+  const page = (e.state && e.state.page) || 'dashboard';
+  navigate(page, { fromPopstate: true });
+});
 
 function toggleSidebar(){
   _el('sidebar').classList.toggle('open');
@@ -1365,8 +1415,9 @@ function renderBotgenPage(){
 function renderGroupsPage(){
   return `<div class="fade-up">
     ${pageHeader(`${ico('chat',14,'#00D9FF')} Community`,'ScottyHub <span style="color:#00D9FF">Feed</span>','Share ideas, get help, and connect with the community.')}
-    <div style="display:flex;gap:8px;margin-bottom:16px">
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button id="community-tab-feed" class="btn btn-ghost" onclick="switchCommunityTab('feed')" style="padding:7px 16px;border-radius:20px;font-size:12px">${ico('chat',13,'currentColor')} Feed</button>
+      <button id="community-tab-chat" class="btn btn-ghost" onclick="switchCommunityTab('chat')" style="padding:7px 16px;border-radius:20px;font-size:12px">${ico('send',13,'currentColor')} Live Chat</button>
       <button id="community-tab-groups" class="btn btn-cyan" onclick="switchCommunityTab('groups')" style="padding:7px 16px;border-radius:20px;font-size:12px">${ico('users',13,'currentColor')} Groups</button>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
@@ -1941,15 +1992,18 @@ referral(){
 // ── COMMUNITY / FEED ──
 community(){
   if(S.communityTab==='groups') return renderGroupsPage();
+  if(S.communityTab==='chat') return renderRoomChatPage('community','Community Chat',ico('users',14,'#00D9FF'));
   const groupBanner = S.activeGroupId ? `
-    <div class="card" style="padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;border-color:rgba(0,217,255,.2)">
+    <div class="card" style="padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;border-color:rgba(0,217,255,.2);flex-wrap:wrap">
       <button class="btn btn-ghost" onclick="exitGroupFeed()" style="padding:6px 12px;border-radius:6px;font-size:12px">← All Groups</button>
       <div style="font-weight:700;font-size:14px">${ico('users',14,'#00D9FF')} ${S.activeGroupName}</div>
+      <button class="btn btn-cyan" onclick="openGroupChat('${S.activeGroupId}','${(S.activeGroupName||'').replace(/'/g,"\\'")}')" style="margin-left:auto;padding:7px 14px;border-radius:7px;font-size:12px">${ico('chat',13,'currentColor')} Group Chat</button>
     </div>` : '';
   return `<div class="fade-up">
     ${pageHeader(`${ico('chat',14,'#00D9FF')} Community`,'ScottyHub <span style="color:#00D9FF">Feed</span>','Share ideas, get help, and connect with the community.')}
-    <div style="display:flex;gap:8px;margin-bottom:16px">
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button id="community-tab-feed" class="btn btn-cyan" onclick="switchCommunityTab('feed')" style="padding:7px 16px;border-radius:20px;font-size:12px">${ico('chat',13,'currentColor')} Feed</button>
+      <button id="community-tab-chat" class="btn btn-ghost" onclick="switchCommunityTab('chat')" style="padding:7px 16px;border-radius:20px;font-size:12px">${ico('send',13,'currentColor')} Live Chat</button>
       <button id="community-tab-groups" class="btn btn-ghost" onclick="switchCommunityTab('groups')" style="padding:7px 16px;border-radius:20px;font-size:12px">${ico('users',13,'currentColor')} Groups</button>
     </div>
     ${groupBanner}
@@ -2526,7 +2580,7 @@ userprofile(){
 
   return `
   <div style="max-width:640px;margin:0 auto">
-    <button onclick="history.back()||navigate('community')" class="btn btn-ghost" style="margin-bottom:16px;padding:8px 14px;border-radius:8px;font-size:12px">← Back</button>
+    <button onclick="navigate('community')" class="btn btn-ghost" style="margin-bottom:16px;padding:8px 14px;border-radius:8px;font-size:12px">← Back</button>
 
     <!-- COVER + IDENTITY -->
     <div class="card" style="padding:0;margin-bottom:16px;overflow:hidden">
@@ -3903,6 +3957,7 @@ function updateCryptoContent(){
 function initCommunity(){
   resetPollComposer();
   if(S.communityTab==='groups'){ loadGroups(); return; }
+  if(S.communityTab==='chat'){ initRoomChat('community'); return; }
   if(!S.posts.length) loadPosts();
 }
 
@@ -3930,9 +3985,12 @@ async function loadGroups(){
           <p style="color:#6688aa;font-size:12px;margin-bottom:8px;min-height:32px">${escHtml(g.description||'No description')}</p>
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="color:#445566;font-size:11px;font-family:'Share Tech Mono',monospace">${g.member_count} member${g.member_count!==1?'s':''}</span>
+            <div style="display:flex;gap:6px">
             ${g.is_member
-              ? `<button class="btn btn-ghost" onclick="leaveGroup('${g.id}')" style="padding:5px 12px;border-radius:6px;font-size:11px">Leave</button>`
+              ? `<button class="btn btn-outline" onclick="openGroupChat('${g.id}','${escHtml(g.name).replace(/'/g,"\\'")}')" style="padding:5px 10px;border-radius:6px;font-size:11px">${ico('chat',12,'currentColor')} Chat</button>
+                 <button class="btn btn-ghost" onclick="leaveGroup('${g.id}')" style="padding:5px 12px;border-radius:6px;font-size:11px">Leave</button>`
               : `<button class="btn btn-cyan" onclick="joinGroup('${g.id}')" style="padding:5px 12px;border-radius:6px;font-size:11px">Join</button>`}
+            </div>
           </div>
         </div>
       </div>`).join('');
@@ -3988,6 +4046,313 @@ function exitGroupFeed(){
   S.posts = [];
   navigate('community');
 }
+
+// ════════════════════════════════════════════
+//  REAL-TIME CHAT (Socket.IO) — Community / Feed / Groups / DMs
+// ════════════════════════════════════════════
+let socket = null;
+const onlineUserIds = new Set();
+
+function initSocket(){
+  if(socket) return;
+  if(typeof io === 'undefined') return; // CDN blocked/offline — chat degrades to REST-only
+  socket = io('/', { auth: { token: token() }, transports:['websocket','polling'] });
+
+  socket.on('connect_error', ()=>{ /* silent — REST fallback still works */ });
+
+  socket.on('presence:snapshot', (d)=>{
+    onlineUserIds.clear();
+    (d.onlineUserIds||[]).forEach(id=>onlineUserIds.add(id));
+    refreshOnlineDots();
+  });
+  socket.on('presence:update', (d)=>{
+    if(d.online) onlineUserIds.add(d.userId); else onlineUserIds.delete(d.userId);
+    refreshOnlineDots();
+  });
+
+  socket.on('room:message', (msg)=>{
+    if(S.page==='community' && S.communityTab==='chat' && msg.room==='community') appendChatBubble('room-chat-body', msg, false);
+    else if(S.page==='roomchat' && S.activeChatRoom===msg.room) appendChatBubble('room-chat-body', msg, false);
+    else toast(`${msg.sender_name}: ${msg.content}`.slice(0,80), 'info', 2500);
+  });
+
+  socket.on('room:typing', (d)=>{
+    const active = S.page==='roomchat' ? S.activeChatRoom : (S.communityTab==='chat' ? 'community' : null);
+    if(d.room!==active) return;
+    showTypingHint('room-chat-typing', `${d.username} is typing…`);
+  });
+
+  socket.on('dm:message', (msg)=>{
+    const isMe = msg.sender_id === (S.user && S.user.uid);
+    if(S.page==='messages' && S.msgs.active===msg.conversation_id){
+      if(!(S.msgs.list||[]).some(m=>m.id===msg.id)) S.msgs.list = (S.msgs.list||[]).concat([msg]);
+      const b = _el('chat-body');
+      if(b){ b.insertAdjacentHTML('beforeend', msgRowHTML(msg)); b.scrollTop = b.scrollHeight; }
+      apiFetch(`/api/messages/${msg.conversation_id}`).catch(()=>{});
+    } else if(!isMe){
+      toast(`New message: ${msg.sender_name||'Someone'}`, 'info', 2500);
+    }
+    if(S.page==='messages' && !S.msgs.active) pollMessages();
+    refreshDmNavBadge();
+  });
+
+  socket.on('dm:typing', (d)=>{
+    if(S.page==='messages' && S.dm.activeConvId && S.dm.otherUser?.id===d.fromUserId){
+      showTypingHint('dm-chat-typing', `${S.dm.otherUser.username} is typing…`);
+    }
+  });
+}
+
+function refreshOnlineDots(){
+  document.querySelectorAll('[data-online-uid]').forEach(el=>{
+    el.classList.toggle('on', onlineUserIds.has(el.getAttribute('data-online-uid')));
+  });
+}
+
+let typingHideTimers = {};
+function showTypingHint(elId, text){
+  const el = _el(elId); if(!el) return;
+  el.textContent = text;
+  clearTimeout(typingHideTimers[elId]);
+  typingHideTimers[elId] = setTimeout(()=>{ if(el) el.textContent=''; }, 2500);
+}
+
+function fmtChatTime(iso){
+  try{ return new Date(iso).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }catch(e){ return ''; }
+}
+
+function chatBubbleHtml(msg, isMe){
+  return `<div class="chat-row${isMe?' me':''}">
+    <div class="chat-bubble">
+      ${!isMe?`<div class="chat-sender">${escHtml(msg.sender_name||'User')}</div>`:''}
+      <div>${escHtml(msg.content)}</div>
+      <div class="chat-meta">${fmtChatTime(msg.created_at)}</div>
+    </div>
+  </div>`;
+}
+
+function appendChatBubble(bodyId, msg, isMe){
+  const body = _el(bodyId); if(!body) return;
+  const wasAtBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+  body.insertAdjacentHTML('beforeend', chatBubbleHtml(msg, isMe));
+  if(wasAtBottom) body.scrollTop = body.scrollHeight;
+}
+
+// ── Room chats (Community / Feed / Groups) ──
+function renderRoomChatPage(room, title, iconHtml){
+  return `<div class="fade-up">
+    <div class="chat-wrap">
+      <div class="chat-header">
+        ${room.startsWith('group:')?`<button class="btn btn-ghost" onclick="navigate('community')" style="padding:6px 10px;border-radius:6px;font-size:11px">←</button>`:''}
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,217,255,.08);display:flex;align-items:center;justify-content:center">${iconHtml}</div>
+        <div>
+          <div style="font-weight:700;font-size:14px">${title}</div>
+          <div style="font-size:11px;color:#6688aa">${room==='community'?'Everyone on ScottyHub':room==='feed'?'Live feed chat':'Group chat'}</div>
+        </div>
+      </div>
+      <div class="chat-body" id="room-chat-body">${skeletonRows(4,false)}</div>
+      <div class="chat-typing" id="room-chat-typing"></div>
+      <div class="chat-inputbar">
+        <textarea id="room-chat-input" rows="1" placeholder="Type a message…" oninput="autoGrow(this);roomChatTyping('${room}')" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendRoomChatMsg('${room}')}"></textarea>
+        <button class="chat-send-btn" onclick="sendRoomChatMsg('${room}')">${ico('send',17,'currentColor')}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+pages.roomchat = function(){
+  const room = S.activeChatRoom || 'community';
+  const title = S.activeChatTitle || 'Chat';
+  return renderRoomChatPage(room, title, ico('users',18,'#00D9FF'));
+};
+pageInits.roomchat = function(){ initRoomChat(S.activeChatRoom); };
+
+function openGroupChat(groupId, name){
+  S.activeChatRoom = 'group:'+groupId;
+  S.activeChatTitle = name;
+  navigate('roomchat');
+}
+
+let roomChatLoaded = {};
+async function initRoomChat(room){
+  initSocket();
+  if(socket) socket.emit('room:join', { room });
+  const body = _el('room-chat-body');
+  if(!body) return;
+  try{
+    const data = await apiFetch(`/api/roomchat/${encodeURIComponent(room)}`);
+    body.innerHTML = data.messages.length
+      ? data.messages.map(m=>chatBubbleHtml(m, m.sender_id===S.user.uid)).join('')
+      : `<div style="text-align:center;padding:30px;color:#6688aa;font-size:12px">No messages yet — say hi!</div>`;
+    body.scrollTop = body.scrollHeight;
+  }catch(e){
+    body.innerHTML = `<div style="text-align:center;padding:30px;color:#ff4444;font-size:12px">Couldn't load chat: ${escHtml(e.message||'')}</div>`;
+  }
+}
+
+let roomTypingLast = 0;
+function roomChatTyping(room){
+  const now = Date.now();
+  if(now - roomTypingLast < 1500) return;
+  roomTypingLast = now;
+  if(socket) socket.emit('room:typing', { room });
+}
+
+async function sendRoomChatMsg(room){
+  const input = _el('room-chat-input');
+  const content = (input.value||'').trim();
+  if(!content) return;
+  input.value=''; autoGrow(input);
+  try{
+    if(socket && socket.connected){
+      socket.emit('room:message', { room, content }, (ack)=>{
+        if(ack && ack.error) toast(ack.error, 'error');
+      });
+    } else {
+      const res = await apiFetch(`/api/roomchat/${encodeURIComponent(room)}`, 'POST', { content });
+      appendChatBubble('room-chat-body', res.message, true);
+    }
+  }catch(e){ toast(e.message || 'Failed to send', 'error'); }
+}
+
+function autoGrow(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+
+// ── Direct Messages (WhatsApp-style inbox + thread) ──
+
+
+async function loadDmInbox(){
+  const list = _el('dm-inbox-list'); if(!list) return;
+  try{
+    const data = await apiFetch('/api/messages/conversations');
+    S.dm.conversations = data.conversations;
+    if(!data.conversations.length){
+      list.innerHTML = `<div style="text-align:center;padding:40px;color:#6688aa">No conversations yet. Search a username above to start one.</div>`;
+      return;
+    }
+    list.innerHTML = data.conversations.map(c=>`
+      <div class="dm-row" onclick="openConversation('${c.id}','${c.other_id}','${escHtml(c.other_username).replace(/'/g,"\\'")}','${c.other_avatar||''}')">
+        <div style="position:relative;flex-shrink:0">
+          ${c.other_avatar?`<img src="${c.other_avatar}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`
+            :`<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0066FF,#00D9FF);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0B0F19">${getInitial(c.other_username)}</div>`}
+          <span class="online-dot" data-online-uid="${c.other_id}"></span>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:13.5px">${escHtml(c.other_username)}</div>
+          <div style="color:#6688aa;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(c.last_message||'Say hi 👋')}</div>
+        </div>
+        ${c.unread>0?`<div class="dm-unread">${c.unread}</div>`:''}
+      </div>`).join('');
+    refreshOnlineDots();
+    refreshDmNavBadge();
+  }catch(e){
+    list.innerHTML = `<div style="text-align:center;padding:40px;color:#ff4444">Couldn't load messages</div>`;
+  }
+}
+
+let dmSearchDebounce;
+function searchDmUsers(q){
+  clearTimeout(dmSearchDebounce);
+  const box = _el('dm-search-results');
+  if(!q || q.trim().length<2){ box.innerHTML=''; return; }
+  dmSearchDebounce = setTimeout(async ()=>{
+    try{
+      const data = await apiFetch(`/api/messages/users?q=${encodeURIComponent(q.trim())}`);
+      box.innerHTML = data.users.length ? data.users.map(u=>`
+        <div class="dm-row" style="padding:8px 4px" onclick="startConversation('${u.id}')">
+          ${u.avatar?`<img src="${u.avatar}" style="width:34px;height:34px;border-radius:50%;object-fit:cover">`
+            :`<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0066FF,#00D9FF);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#0B0F19">${getInitial(u.username)}</div>`}
+          <div style="font-size:13px;font-weight:600">${escHtml(u.username)}</div>
+        </div>`).join('') : `<div style="padding:10px;color:#6688aa;font-size:12px">No users found</div>`;
+    }catch(e){ box.innerHTML=''; }
+  }, 300);
+}
+
+async function startConversation(otherId){
+  try{
+    const data = await apiFetch('/api/messages/conversations', 'POST', { other_id: otherId });
+    _el('dm-search-input').value=''; _el('dm-search-results').innerHTML='';
+    openConversation(data.conversation.id, data.other.id, data.other.username, data.other.avatar);
+  }catch(e){ toast(e.message || 'Could not start chat', 'error'); }
+}
+
+function openConversation(convId, otherId, otherUsername, otherAvatar){
+  S.dm.activeConvId = convId;
+  S.dm.otherUser = { id: otherId, username: otherUsername, avatar: otherAvatar };
+  navigate('messages');
+}
+function closeConversation(){
+  S.dm.activeConvId = null;
+  S.dm.otherUser = null;
+  navigate('messages');
+}
+
+function renderDmThreadPage(){
+  const u = S.dm.otherUser||{};
+  return `<div class="fade-up">
+    <div class="chat-wrap">
+      <div class="chat-header">
+        <button class="btn btn-ghost" onclick="closeConversation()" style="padding:6px 10px;border-radius:6px;font-size:11px">←</button>
+        <div style="position:relative">
+          ${u.avatar?`<img src="${u.avatar}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`
+            :`<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0066FF,#00D9FF);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0B0F19">${getInitial(u.username)}</div>`}
+          <span class="online-dot" data-online-uid="${u.id}"></span>
+        </div>
+        <div style="font-weight:700;font-size:14px">${escHtml(u.username||'')}</div>
+      </div>
+      <div class="chat-body" id="dm-chat-body">${skeletonRows(4,false)}</div>
+      <div class="chat-typing" id="dm-chat-typing"></div>
+      <div class="chat-inputbar">
+        <textarea id="dm-chat-input" rows="1" placeholder="Message…" oninput="autoGrow(this);dmTyping()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDmMsg()}"></textarea>
+        <button class="chat-send-btn" onclick="sendDmMsg()">${ico('send',17,'currentColor')}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function initDmThread(){
+  initSocket();
+  refreshOnlineDots();
+  const body = _el('dm-chat-body'); if(!body) return;
+  try{
+    const data = await apiFetch(`/api/messages/${S.dm.activeConvId}`);
+    body.innerHTML = data.messages.length
+      ? data.messages.map(m=>chatBubbleHtml({...m, sender_name: m.sender_id===S.user.uid?'You':S.dm.otherUser.username}, m.sender_id===S.user.uid)).join('')
+      : `<div style="text-align:center;padding:30px;color:#6688aa;font-size:12px">No messages yet — say hi 👋</div>`;
+    body.scrollTop = body.scrollHeight;
+    refreshDmNavBadge();
+  }catch(e){
+    body.innerHTML = `<div style="text-align:center;padding:30px;color:#ff4444;font-size:12px">Couldn't load conversation</div>`;
+  }
+}
+
+let dmTypingLast = 0;
+function dmTyping(){
+  const now = Date.now();
+  if(now - dmTypingLast < 1500 || !S.dm.otherUser) return;
+  dmTypingLast = now;
+  if(socket) socket.emit('dm:typing', { toUserId: S.dm.otherUser.id });
+}
+
+async function sendDmMsg(){
+  const input = _el('dm-chat-input');
+  const content = (input.value||'').trim();
+  if(!content || !S.dm.activeConvId) return;
+  input.value=''; autoGrow(input);
+  try{
+    const res = await apiFetch(`/api/messages/${S.dm.activeConvId}`, 'POST', { content });
+    appendChatBubble('dm-chat-body', { ...res.message, sender_name:'You' }, true);
+  }catch(e){ toast(e.message || 'Failed to send', 'error'); }
+}
+
+async function refreshDmNavBadge(){
+  try{
+    const data = await apiFetch('/api/messages/conversations');
+    const total = data.conversations.reduce((s,c)=>s+(c.unread||0),0);
+    const badge = _el('dm-nav-badge');
+    if(badge){ badge.textContent = total>99?'99+':total; badge.style.display = total>0?'flex':'none'; }
+  }catch(e){}
+}
+
 async function loadPosts(){
   S.postsLoading=true; S.postsPage=1; updatePostsList();
   try {
@@ -4972,11 +5337,20 @@ function closeModal(){ _el('modal-root').innerHTML=''; }
 // ════════════════════════════════════════════
 function timeAgo(ts){
   if(!ts)return'';
-  // SQLite datetime('now') returns 'YYYY-MM-DD HH:MM:SS' in UTC with no timezone marker —
-  // normalize so Date() parses it as UTC instead of local time.
-  const iso = typeof ts==='string' && ts.includes(' ') && !ts.includes('T') ? ts.replace(' ','T')+'Z' : ts;
+  // Postgres' NOW()::text returns 'YYYY-MM-DD HH:MM:SS[.ffffff][+TZ]' —
+  // space-separated like SQLite, but it ALSO carries its own timezone offset.
+  // Only append 'Z' when there is no offset already; otherwise blindly
+  // appending 'Z' produces an invalid string like '...+00Z' that Date() rejects.
+  let iso = ts;
+  if(typeof ts==='string' && ts.includes(' ') && !ts.includes('T')){
+    iso = ts.replace(' ','T');
+    const hasOffset = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(iso);
+    if(!hasOffset) iso += 'Z';
+  }
   const d=new Date(iso), now=new Date();
+  if(isNaN(d.getTime()))return'';
   const diff=Math.floor((now-d)/1000);
+  if(diff<0)return'Just now';
   if(diff<60)return'Just now';
   if(diff<3600)return Math.floor(diff/60)+'m ago';
   if(diff<86400)return Math.floor(diff/3600)+'h ago';
@@ -5120,6 +5494,7 @@ async function adminTopup(){
 document.addEventListener('DOMContentLoaded',()=>{
   // Fill in icons that live in static markup (outside template-literal render functions)
   const _notifIcon = _el('notif-btn-icon'); if(_notifIcon) _notifIcon.innerHTML = ico('bell',18,'currentColor');
+  const _dmIcon = _el('dm-nav-icon'); if(_dmIcon) _dmIcon.innerHTML = ico('chat',18,'currentColor');
   const _logoutIcon = _el('logout-btn-icon'); if(_logoutIcon) _logoutIcon.innerHTML = ico('lock',14,'currentColor');
   getReferralFromURL();
   loadHeroStats();
@@ -6123,6 +6498,9 @@ async function pollMessages(){
     const fresh = (d && d.conversations) || [];
     const prev = S.msgs.convs || [];
     S.msgs.convs = fresh;
+    const totalUnread = fresh.reduce((sc,c)=>sc+(c.unread||0),0);
+    const dmBadge = _el('dm-nav-badge');
+    if(dmBadge){ dmBadge.textContent = totalUnread>99?'99+':totalUnread; dmBadge.style.display = totalUnread>0?'flex':'none'; }
     const onChat = S.page === 'messages';
     if(onChat){
       const li = _el('chat-items');
