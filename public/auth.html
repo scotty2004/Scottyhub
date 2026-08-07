@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>ScottyHub | Login & Register</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+      background: #06080f;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      margin: 0;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Deep space animated background */
+    body::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 15% 25%, rgba(0, 180, 255, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 85% 65%, rgba(138, 43, 226, 0.18) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 200, 0.06) 0%, transparent 55%);
+      animation: bgPulse 14s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes bgPulse {
+      0% { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.08); }
+    }
+
+    /* ---------- LOADING SCREEN ---------- */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #04060c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.9s ease, visibility 0.9s;
+      backdrop-filter: blur(10px);
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .logo-container {
+      margin-bottom: 2rem;
+      animation: logoFloat 2.5s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-14px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .scotty-logo {
+      width: 100px;
+      height: 100px;
+      filter: drop-shadow(0 0 20px rgba(0, 194, 255, 0.8));
+      animation: logoGlow 2.8s infinite alternate;
+    }
+
+    @keyframes logoGlow {
+      from { filter: drop-shadow(0 0 15px #00c2ff); }
+      to { filter: drop-shadow(0 0 35px #b266ff); }
+    }
+
+    .loading-quote {
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: #b0d4ff;
+      text-align: center;
+      max-width: 400px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.3px;
+      animation: fadeQuote 3s infinite;
+      font-style: italic;
+      opacity: 0.9;
+    }
+
+    @keyframes fadeQuote {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    .loading-brand {
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00c2ff, #b266ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+      margin-bottom: 0.3rem;
+    }
+
+    .progress-dots {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      background: #00c2ff;
+      border-radius: 50%;
+      animation: dotBounce 1.5s infinite ease-in-out both;
+      box-shadow: 0 0 14px #00a6ff;
+    }
+
+    .dot:nth-child(1) { animation-delay: 0s; }
+    .dot:nth-child(2) { animation-delay: 0.25s; }
+    .dot:nth-child(3) { animation-delay: 0.5s; }
+
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+      40% { transform: scale(1.4); opacity: 1; }
+    }
+
+    /* ---------- MAIN FORM CARD ---------- */
+    .form-card {
+      position: relative;
+      width: 100%;
+      max-width: 1020px;
+      min-height: 620px;
+      background: rgba(10, 14, 23, 0.7);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border-radius: 3rem;
+      box-shadow: 0 40px 70px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 194, 255, 0.2);
+      display: flex;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      animation: floatCard 6s ease-in-out infinite;
+    }
+
+    @keyframes floatCard {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .form-section {
+      width: 50%;
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: all 0.55s cubic-bezier(0.68, -0.3, 0.27, 1.3);
+      position: relative;
+      z-index: 2;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .brand-logo-sm {
+      width: 42px;
+      height: 42px;
+      filter: drop-shadow(0 0 10px #00c2ff);
+      animation: iconGlow 2.2s infinite alternate;
+    }
+
+    @keyframes iconGlow {
+      from { filter: drop-shadow(0 0 6px #00c2ff); }
+      to { filter: drop-shadow(0 0 20px #b266ff); }
+    }
+
+    .brand span {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff, #b0d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.3rem;
+    }
+
+    .subtitle {
+      color: #9bb1c7;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .input-group {
+      margin-bottom: 1.3rem;
+      position: relative;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.9rem 1rem 0.9rem 2.8rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(0, 194, 255, 0.2);
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      color: white;
+      outline: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    .input-field::placeholder {
+      color: #7a8fa3;
+    }
+
+    .input-field:focus {
+      border-color: #00c2ff;
+      box-shadow: 0 0 20px rgba(0, 194, 255, 0.4);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #5f7d9c;
+      font-size: 1rem;
+      transition: color 0.3s;
+    }
+
+    .input-group:focus-within i {
+      color: #00c2ff;
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 0.85rem;
+      margin-top: -0.9rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .success-message {
+      color: #51cf66;
+      font-size: 0.85rem;
+      margin-top: -0.9rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.8rem 0 1.8rem;
+      font-size: 0.85rem;
+    }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #b0c4de;
+      cursor: pointer;
+    }
+
+    .remember input {
+      accent-color: #00c2ff;
+      width: 15px;
+      height: 15px;
+    }
+
+    .forgot {
+      color: #00c2ff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .forgot:hover {
+      text-decoration: underline;
+      color: #66d9ff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, #0066cc, #8a2be2);
+      border: none;
+      border-radius: 1rem;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(0, 162, 255, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0077ee, #9b3bff);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 38px rgba(0, 194, 255, 0.6);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn i {
+      transition: transform 0.3s;
+    }
+
+    .btn:hover:not(:disabled) i {
+      transform: translateX(5px);
+    }
+
+    .social-text {
+      color: #8b9bb4;
+      text-align: center;
+      margin: 1.5rem 0 0.8rem;
+      font-size: 0.8rem;
+      position: relative;
+    }
+
+    .social-text::before,
+    .social-text::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 25%;
+      height: 1px;
+      background: rgba(0,194,255,0.22);
+    }
+
+    .social-text::before { left: 0; }
+    .social-text::after { right: 0; }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+    }
+
+    .social-icons i {
+      font-size: 1.3rem;
+      color: #c0d0e0;
+      background: rgba(0,194,255,0.08);
+      padding: 0.6rem;
+      border-radius: 50%;
+      transition: 0.3s;
+      cursor: pointer;
+      border: 1px solid rgba(0,194,255,0.25);
+    }
+
+    .social-icons i:hover {
+      color: #00c2ff;
+      background: rgba(0,194,255,0.2);
+      border-color: #00c2ff;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,194,255,0.35);
+    }
+
+    /* Right overlay panel */
+    .overlay-panel {
+      width: 50%;
+      background: linear-gradient(145deg, #0e2340, #190c36);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem;
+      text-align: center;
+      color: white;
+      position: relative;
+      transition: all 0.6s cubic-bezier(0.68, -0.3, 0.27, 1.3);
+      border-radius: 3rem 0 0 3rem;
+      z-index: 5;
+      border-left: 1px solid rgba(0,194,255,0.3);
+    }
+
+    .overlay-panel .overlay-logo {
+      width: 70px;
+      height: 70px;
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 0 18px #00c2ff);
+    }
+
+    .overlay-panel h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .overlay-panel p {
+      margin-bottom: 2rem;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    .ghost-btn {
+      background: transparent;
+      border: 2px solid #00c2ff;
+      padding: 0.7rem 2.4rem;
+      border-radius: 2.5rem;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(5px);
+    }
+
+    .ghost-btn:hover {
+      background: #00c2ff;
+      color: #06080f;
+      transform: scale(1.06);
+      box-shadow: 0 0 30px #00a6ff;
+    }
+
+    /* Toggle classes */
+    .form-card.register-mode .form-section {
+      transform: translateX(100%);
+    }
+
+    .form-card.register-mode .overlay-panel {
+      transform: translateX(-100%);
+      border-radius: 0 3rem 3rem 0;
+      background: linear-gradient(145deg, #0b2542, #1a0d38);
+    }
+
+    .login-form, .register-form, .verify-form {
+      transition: opacity 0.35s ease, visibility 0.35s;
+      width: 100%;
+    }
+
+    .register-form, .verify-form {
+      display: none;
+      opacity: 0;
+    }
+
+    .form-card.register-mode .login-form {
+      display: none;
+      opacity: 0;
+    }
+
+    .form-card.register-mode .register-form {
+      display: block;
+      opacity: 1;
+    }
+
+    .form-card.verify-mode .login-form {
+      display: none;
+      opacity: 0;
+    }
+
+    .form-card.verify-mode .verify-form {
+      display: block;
+      opacity: 1;
+    }
+
+    .verify-back-btn {
+      color: #00c2ff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .verify-back-btn:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .form-card {
+        flex-direction: column;
+        max-width: 420px;
+        min-height: auto;
+      }
+      .form-section, .overlay-panel {
+        width: 100%;
+        padding: 2rem;
+      }
+      .overlay-panel {
+        border-radius: 0 0 3rem 3rem;
+      }
+      .form-card.register-mode .form-section {
+        transform: translateX(0);
+      }
+      .form-card.register-mode .overlay-panel {
+        transform: translateX(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- LOADING SCREEN -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="logo-container">
+      <svg class="scotty-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#00c2ff"/>
+            <stop offset="100%" stop-color="#b266ff"/>
+          </linearGradient>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feMerge>
+              <feMergeNode in="offsetBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <circle cx="50" cy="50" r="44" stroke="url(#logoGrad)" stroke-width="3" fill="none" opacity="0.9"/>
+        <ellipse cx="50" cy="50" rx="30" ry="10" stroke="url(#logoGrad)" stroke-width="2" fill="none" transform="rotate(-30 50 50)" opacity="0.8"/>
+        <polygon points="50,25 62,42 55,42 55,58 62,58 50,75 38,58 45,58 45,42 38,42" fill="url(#logoGrad)" filter="url(#glow)"/>
+        <circle cx="22" cy="35" r="4" fill="#00c2ff" opacity="0.9">
+          <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="78" cy="65" r="3.5" fill="#b266ff" opacity="0.9">
+          <animateTransform attributeName="transform" type="rotate" from="120 50 50" to="480 50 50" dur="10s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="70" cy="28" r="3" fill="#00c2ff" opacity="0.8">
+          <animateTransform attributeName="transform" type="rotate" from="240 50 50" to="600 50 50" dur="9s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    </div>
+    <div class="loading-brand">ScottyHub</div>
+    <div class="loading-quote">"Every great journey starts with a single thought."</div>
+    <div class="progress-dots">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </div>
+
+  <!-- MAIN FORM -->
+  <div class="form-card" id="formCard" style="opacity:0; transition: opacity 0.9s ease;">
+    <!-- Left: Forms -->
+    <div class="form-section">
+      <!-- Login Form -->
+      <div class="login-form" id="loginForm">
+        <div class="brand">
+          <svg class="brand-logo-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="44" stroke="#00c2ff" stroke-width="3" fill="none"/>
+            <ellipse cx="50" cy="50" rx="30" ry="10" stroke="#00c2ff" stroke-width="2" fill="none" transform="rotate(-30 50 50)"/>
+            <polygon points="50,28 60,44 54,44 54,56 60,56 50,72 40,56 46,56 46,44 40,44" fill="url(#logoGradSmall)"/>
+            <defs>
+              <linearGradient id="logoGradSmall" x1="20%" y1="0%" x2="80%" y2="100%">
+                <stop offset="0%" stop-color="#00c2ff"/>
+                <stop offset="100%" stop-color="#b266ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>ScottyHub</span>
+        </div>
+        <h2>Beam back in</h2>
+        <p class="subtitle"><i class="fas fa-sign-in-alt"></i> Login to your command center</p>
+        
+        <div id="loginError"></div>
+        
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" class="input-field" id="loginEmail" placeholder="Email address" autocomplete="email">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" class="input-field" id="loginPassword" placeholder="Password" autocomplete="current-password">
+        </div>
+        
+        <div class="options">
+          <label class="remember">
+            <input type="checkbox" id="rememberMe"> Remember me
+          </label>
+          <a class="forgot" onclick="showForgotPassword(event)">Forgot?</a>
+        </div>
+        
+        <button class="btn" id="loginBtn" onclick="handleLogin()">Engage <i class="fas fa-arrow-right"></i></button>
+        
+        <div class="social-text">or connect with</div>
+        <div class="social-icons">
+          <i class="fab fa-google" onclick="handleGoogleLogin()" title="Sign in with Google"></i>
+          <i class="fab fa-github" title="Sign in with GitHub"></i>
+          <i class="fab fa-discord" title="Sign in with Discord"></i>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div class="register-form" id="registerForm">
+        <div class="brand">
+          <svg class="brand-logo-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="44" stroke="#00c2ff" stroke-width="3" fill="none"/>
+            <ellipse cx="50" cy="50" rx="30" ry="10" stroke="#00c2ff" stroke-width="2" fill="none" transform="rotate(-30 50 50)"/>
+            <polygon points="50,28 60,44 54,44 54,56 60,56 50,72 40,56 46,56 46,44 40,44" fill="url(#logoGradSmall2)"/>
+            <defs>
+              <linearGradient id="logoGradSmall2" x1="20%" y1="0%" x2="80%" y2="100%">
+                <stop offset="0%" stop-color="#00c2ff"/>
+                <stop offset="100%" stop-color="#b266ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>ScottyHub</span>
+        </div>
+        <h2>New recruit</h2>
+        <p class="subtitle"><i class="fas fa-user-plus"></i> Create your starfleet account</p>
+        
+        <div id="registerError"></div>
+        
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" class="input-field" id="regUsername" placeholder="Username" autocomplete="username">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" class="input-field" id="regEmail" placeholder="Email address" autocomplete="email">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" class="input-field" id="regPassword" placeholder="Password" autocomplete="new-password">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" class="input-field" id="regConfirmPassword" placeholder="Confirm password" autocomplete="new-password">
+        </div>
+        
+        <div class="options">
+          <label class="remember">
+            <input type="checkbox" id="acceptTerms" required> I accept the <a href="#" style="color:#00c2ff;">Prime Directive</a>
+          </label>
+        </div>
+        
+        <button class="btn" id="registerBtn" onclick="handleRegister()">Initialize <i class="fas fa-arrow-right"></i></button>
+        
+        <div class="social-text">or sign up with</div>
+        <div class="social-icons">
+          <i class="fab fa-google" onclick="handleGoogleSignup()" title="Sign up with Google"></i>
+          <i class="fab fa-github" title="Sign up with GitHub"></i>
+          <i class="fab fa-discord" title="Sign up with Discord"></i>
+        </div>
+      </div>
+
+      <!-- Verification Form -->
+      <div class="verify-form" id="verifyForm">
+        <button class="verify-back-btn" onclick="backToLogin()">← Back to Login</button>
+        <div class="brand">
+          <svg class="brand-logo-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="44" stroke="#00c2ff" stroke-width="3" fill="none"/>
+            <ellipse cx="50" cy="50" rx="30" ry="10" stroke="#00c2ff" stroke-width="2" fill="none" transform="rotate(-30 50 50)"/>
+            <polygon points="50,28 60,44 54,44 54,56 60,56 50,72 40,56 46,56 46,44 40,44" fill="url(#logoGradSmall3)"/>
+            <defs>
+              <linearGradient id="logoGradSmall3" x1="20%" y1="0%" x2="80%" y2="100%">
+                <stop offset="0%" stop-color="#00c2ff"/>
+                <stop offset="100%" stop-color="#b266ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>ScottyHub</span>
+        </div>
+        <h2>Verify Account</h2>
+        <p class="subtitle"><i class="fas fa-check-circle"></i> Enter the code sent to your email</p>
+        
+        <div id="verifyError"></div>
+        
+        <div class="input-group">
+          <i class="fas fa-shield-alt"></i>
+          <input type="text" class="input-field" id="verifyCode" placeholder="6-digit verification code" maxlength="6" autocomplete="off">
+        </div>
+        
+        <button class="btn" id="verifyBtn" onclick="handleVerify()">Confirm <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Right overlay panel -->
+    <div class="overlay-panel" id="overlayPanel">
+      <svg class="overlay-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.8"/>
+        <polygon points="50,30 60,44 54,44 54,56 60,56 50,70 40,56 46,56 46,44 40,44" fill="white" opacity="0.9"/>
+      </svg>
+      <h2 id="overlayTitle">ScottyHub Command</h2>
+      <p id="overlayText">Enter your credentials and access the galactic network</p>
+      <button class="ghost-btn" id="toggleBtn" onclick="toggleMode()">Register</button>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    let isRegisterMode = false;
+    let currentUserId = null;
+    let currentEmail = null;
+
+    // Show message
+    function showMessage(elementId, message, isError = true) {
+      const element = document.getElementById(elementId);
+      const className = isError ? 'error-message' : 'success-message';
+      const icon = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+      element.innerHTML = `<i class="${icon}"></i> ${message}`;
+    }
+
+    // Clear message
+    function clearMessage(elementId) {
+      document.getElementById(elementId).innerHTML = '';
+    }
+
+    // Toggle between login and register
+    function toggleMode() {
+      isRegisterMode = !isRegisterMode;
+      const formCard = document.getElementById('formCard');
+      const toggleBtn = document.getElementById('toggleBtn');
+      const overlayTitle = document.getElementById('overlayTitle');
+      const overlayText = document.getElementById('overlayText');
+      
+      if (isRegisterMode) {
+        formCard.classList.add('register-mode');
+        overlayTitle.textContent = "Already onboard?";
+        overlayText.textContent = "Login with your existing credentials and continue exploring";
+        toggleBtn.textContent = "Login";
+      } else {
+        formCard.classList.remove('register-mode');
+        overlayTitle.textContent = "ScottyHub Command";
+        overlayText.textContent = "Enter your credentials and access the galactic network";
+        toggleBtn.textContent = "Register";
+      }
+      
+      clearMessage('loginError');
+      clearMessage('registerError');
+      clearMessage('verifyError');
+    }
+
+    // Handle Login
+    async function handleLogin() {
+      clearMessage('loginError');
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      const btn = document.getElementById('loginBtn');
+
+      if (!email || !password) {
+        showMessage('loginError', 'Email and password are required', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Engaging...';
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showMessage('loginError', data.message || 'Login failed', true);
+          btn.disabled = false;
+          btn.innerHTML = 'Engage <i class="fas fa-arrow-right"></i>';
+          return;
+        }
+
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          if (rememberMe) {
+            localStorage.setItem('email', email);
+          }
+          window.location.href = '/dashboard';
+        }
+      } catch (error) {
+        showMessage('loginError', 'Network error. Please try again.', true);
+        btn.disabled = false;
+        btn.innerHTML = 'Engage <i class="fas fa-arrow-right"></i>';
+      }
+    }
+
+    // Handle Register
+    async function handleRegister() {
+      clearMessage('registerError');
+      const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+      const acceptTerms = document.getElementById('acceptTerms').checked;
+      const btn = document.getElementById('registerBtn');
+
+      if (!username || !email || !password || !confirmPassword) {
+        showMessage('registerError', 'All fields are required', true);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showMessage('registerError', 'Passwords do not match', true);
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage('registerError', 'Password must be at least 6 characters', true);
+        return;
+      }
+
+      if (!acceptTerms) {
+        showMessage('registerError', 'Please accept the terms and conditions', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing...';
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showMessage('registerError', data.message || 'Registration failed', true);
+          btn.disabled = false;
+          btn.innerHTML = 'Initialize <i class="fas fa-arrow-right"></i>';
+          return;
+        }
+
+        // Show verification form
+        currentUserId = data.userId;
+        currentEmail = email;
+        const formCard = document.getElementById('formCard');
+        formCard.classList.add('verify-mode');
+        showMessage('registerError', 'Check your email for the verification code', false);
+      } catch (error) {
+        showMessage('registerError', 'Network error. Please try again.', true);
+        btn.disabled = false;
+        btn.innerHTML = 'Initialize <i class="fas fa-arrow-right"></i>';
+      }
+    }
+
+    // Handle Verification
+    async function handleVerify() {
+      clearMessage('verifyError');
+      const code = document.getElementById('verifyCode').value.trim();
+      const btn = document.getElementById('verifyBtn');
+
+      if (!code || code.length !== 6) {
+        showMessage('verifyError', 'Please enter a valid 6-digit code', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: currentUserId, otp: code })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showMessage('verifyError', data.message || 'Verification failed', true);
+          btn.disabled = false;
+          btn.innerHTML = 'Confirm <i class="fas fa-arrow-right"></i>';
+          return;
+        }
+
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          window.location.href = '/dashboard';
+        }
+      } catch (error) {
+        showMessage('verifyError', 'Network error. Please try again.', true);
+        btn.disabled = false;
+        btn.innerHTML = 'Confirm <i class="fas fa-arrow-right"></i>';
+      }
+    }
+
+    // Back to login
+    function backToLogin() {
+      const formCard = document.getElementById('formCard');
+      formCard.classList.remove('verify-mode');
+      currentUserId = null;
+      currentEmail = null;
+      isRegisterMode = false;
+      toggleMode();
+    }
+
+    // Show forgot password (placeholder)
+    function showForgotPassword(e) {
+      e.preventDefault();
+      alert('Forgot password feature coming soon!');
+    }
+
+    // Google login/signup
+    function handleGoogleLogin() {
+      alert('Google authentication coming soon!');
+    }
+
+    function handleGoogleSignup() {
+      alert('Google authentication coming soon!');
+    }
+
+    // Loading screen
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loadingScreen = document.getElementById('loadingScreen');
+        const formCard = document.getElementById('formCard');
+        loadingScreen.classList.add('hidden');
+        formCard.style.opacity = '1';
+      }, 2000);
+    });
+
+    // Check if already logged in
+    if (localStorage.getItem('token')) {
+      window.location.href = '/dashboard';
+    }
+
+    // Auto-fill email if remembered
+    const rememberedEmail = localStorage.getItem('email');
+    if (rememberedEmail) {
+      document.getElementById('loginEmail').value = rememberedEmail;
+    }
+  </script>
+</body>
+</html>
