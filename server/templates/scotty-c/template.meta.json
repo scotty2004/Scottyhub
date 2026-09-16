@@ -1,0 +1,21 @@
+{
+  "id": "scotty-c",
+  "displayName": "Scotty♤C",
+  "description": "Multi-user WhatsApp bot with 250+ commands (Baileys)",
+  "settingsFile": "settings.js",
+  "packageFile": "package.json",
+  "bannerPlaceholders": ["prefix", "user", "mode", "version"],
+  "fields": [
+    { "key": "botName",     "settingsKey": "botName",     "label": "Bot Name",       "type": "text",   "required": true },
+    { "key": "botOwner",    "settingsKey": "botOwner",    "label": "Owner Name",     "type": "text",   "required": true },
+    { "key": "ownerNumber", "settingsKey": "ownerNumber", "label": "Owner Number (with country code, no +)", "type": "text", "required": true },
+    { "key": "prefix",      "settingsKey": "prefix",      "label": "Command Prefix", "type": "text",   "required": true, "default": "." },
+    { "key": "packname",    "settingsKey": "packname",    "label": "Sticker Pack Name", "type": "text", "required": false },
+    { "key": "BOT_IMG",     "settingsKey": "BOT_IMG",     "label": "Bot Image URL",  "type": "text",   "required": false },
+    { "key": "CHANNEL_LINK","settingsKey": "CHANNEL_LINK","label": "WhatsApp Channel Link", "type": "text", "required": false },
+    { "key": "GROUP_LINK",  "settingsKey": "GROUP_LINK",  "label": "WhatsApp Group Link", "type": "text", "required": false }
+  ],
+  "aiFields": [
+    { "key": "menuTheme", "label": "Describe the menu banner style/vibe you want (e.g. 'neon cyberpunk', 'clean minimal', 'gold luxury')", "type": "textarea", "required": false }
+  ]
+}
