@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@layer utilities {
+  /* Sleek Interface Ambient radial background */
+  .bg-sleek-radial {
+    background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #0f172a 100%);
+  }
+
+  /* Glassmorphic border & container */
+  .sleek-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .sleek-card-indigo {
+    background: rgba(99, 102, 241, 0.08);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  /* Custom scrollbar hiding */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
